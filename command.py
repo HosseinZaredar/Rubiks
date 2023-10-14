@@ -1,7 +1,9 @@
 from ursina import *
+import numpy as np
+
 
 class Rubik():
-    def __init__(self):
+    def __init__(self, animation_time):
 
         # plane setup
         Entity(model='quad', scale=60, texture='white_cube', texture_scale=(60, 60),
@@ -28,7 +30,7 @@ class Rubik():
         self.cubes_side_positons = {'LEFT': LEFT, 'RIGHT': RIGHT, 'DOWN': DOWN, 'UP': UP, 'BACK': BACK, 'FRONT': FRONT}
 
         # parameters
-        self.animation_time = 0.5
+        self.animation_time = animation_time
         self.action_trigger = True
 
         # creating the cubes
@@ -69,9 +71,22 @@ class Rubik():
             elif key in self.reverse_keys:
                 self.rotate_side(self.reverse_keys[key], reverse=True)
 
+    def action_sequence(self, action_seq):
+        if len(action_seq) == 0:
+            return
+        self.action(action_seq[0])
+        invoke(self.action_sequence, action_seq[1:], delay=self.animation_time+0.1)
+
 if __name__ == '__main__':
     app = Ursina(size=(800, 600))
-    rubik = Rubik()
-    input = lambda key: rubik.action(key)
+    rubik = Rubik(animation_time=0.5)
+
+    action_dict = {1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6',
+                   7: 'q', 8: 'w', 9: 'e', 10: 'r', 11: 't', 12: 'y'}
+    
+    sequence = [action_dict[i] for i in np.random.randint(1, 12+1, 20)]
+    invoke(rubik.action_sequence, sequence, delay=1.0)
+    
     app.run()
+
     
