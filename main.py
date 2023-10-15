@@ -18,7 +18,8 @@ if __name__ == '__main__':
         state = init_state()
 
         # scramble
-        scramble_sequence = np.random.randint(1, 12+1, 10)
+        # scramble_sequence = [12, 11, 10, 9, 8, 7]
+        scramble_sequence = np.random.randint(1, 12+1, 8)
         for a in scramble_sequence:
             state = next_state(state, action=a)
 
@@ -30,7 +31,7 @@ if __name__ == '__main__':
         end_time = time.time()
         elapsed_time = end_time - start_time
         print(f'SOLVE FINISHED In {elapsed_time:.5f}s.')
-        time.sleep(3)
+
 
     if not args.manual:
         print('--------- PRESS ENTER TO VISUALIZE --------')
