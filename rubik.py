@@ -1,9 +1,8 @@
 from ursina import *
-import numpy as np
 
 
 class Rubik():
-    def __init__(self, animation_time):
+    def __init__(self):
 
         # plane setup
         Entity(model='quad', scale=60, texture='white_cube', texture_scale=(60, 60),
@@ -12,6 +11,10 @@ class Rubik():
         # camera setup
         EditorCamera()
         camera.world_position = (0, 0, -15)
+
+        # text setup
+        self.text = None
+        self.text_position = (0, -8)
 
         # cubie model and texture
         model, texture = 'models/custom_cube', 'textures/rubik_texture'
@@ -30,7 +33,6 @@ class Rubik():
         self.cubes_side_positons = {'LEFT': LEFT, 'RIGHT': RIGHT, 'DOWN': DOWN, 'UP': UP, 'BACK': BACK, 'FRONT': FRONT}
 
         # parameters
-        self.animation_time = animation_time
         self.action_trigger = True
 
         # creating the cubes
@@ -52,7 +54,7 @@ class Rubik():
                 cube.position, cube.rotation = world_pos, world_rot
         self.PARENT.rotation = 0
 
-    def rotate_side(self, side_name, reverse=False):
+    def rotate_side(self, side_name, animation_time, reverse=False):
         self.toggle_trigger()
         cube_positions = self.cubes_side_positons[side_name]
         rotation_axis = self.rotation_axes[side_name]
@@ -61,32 +63,36 @@ class Rubik():
             if cube.position in cube_positions:
                 cube.parent = self.PARENT
                 angle = -90 if reverse else 90
-                eval(f'self.PARENT.animate_rotation_{rotation_axis}({angle}, duration=self.animation_time)')
-        invoke(self.toggle_trigger, delay=self.animation_time+0.1)
+                eval(f'self.PARENT.animate_rotation_{rotation_axis}({angle}, duration=animation_time)')
+        invoke(self.toggle_trigger, delay=animation_time+0.05)
 
-    def action(self, key):
+    def action(self, key, animation_time):
         if self.action_trigger:
             if key in self.keys:
-                self.rotate_side(self.keys[key])
+                self.rotate_side(self.keys[key], animation_time)
             elif key in self.reverse_keys:
-                self.rotate_side(self.reverse_keys[key], reverse=True)
+                self.rotate_side(self.reverse_keys[key], animation_time, reverse=True)
 
-    def action_sequence(self, action_seq):
-        if len(action_seq) == 0:
+    def action_sequence(self, scramble_seq, solve_seq):
+        if len(scramble_seq) == 0 and len(solve_seq) == 0:
             return
-        self.action(action_seq[0])
-        invoke(self.action_sequence, action_seq[1:], delay=self.animation_time+0.1)
-
-if __name__ == '__main__':
-    app = Ursina(size=(800, 600))
-    rubik = Rubik(animation_time=0.5)
-
-    action_dict = {1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6',
-                   7: 'q', 8: 'w', 9: 'e', 10: 'r', 11: 't', 12: 'y'}
-    
-    sequence = [action_dict[i] for i in np.random.randint(1, 12+1, 20)]
-    invoke(rubik.action_sequence, sequence, delay=1.0)
-    
-    app.run()
-
+        
+        if len(scramble_seq) != 0:
+            if self.text is None or self.text.is_empty():
+                self.text = Text('Scramble', scale=2, origin=self.text_position)
+            action = scramble_seq[0]
+            self.action(action, animation_time=0.1)
+            if len(scramble_seq) == 1:
+                destroy(self.text, delay=0.5)
+                invoke(self.action_sequence, scramble_seq[1:], solve_seq, delay=2+0.1)
+            else:
+                invoke(self.action_sequence, scramble_seq[1:], solve_seq, delay=0.1+0.1)
+        else:
+            if self.text.is_empty():
+                self.text = Text('Solve', scale=2, origin=self.text_position)
+            action = solve_seq[0]
+            self.action(action, animation_time=0.5)
+            if len(solve_seq) == 1:
+                destroy(self.text, delay=1)
+            invoke(self.action_sequence, scramble_seq, solve_seq[1:], delay=0.5+0.1)
     
