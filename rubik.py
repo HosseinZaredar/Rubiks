@@ -10,7 +10,7 @@ class Rubik():
 
         # camera setup
         EditorCamera()
-        camera.world_position = (0, 0, -15)
+        camera.world_position = (0, 0, -10)
 
         # text setup
         self.text = None
@@ -83,10 +83,10 @@ class Rubik():
             action = scramble_seq[0]
             self.action(action, animation_time=0.1)
             if len(scramble_seq) == 1:
-                destroy(self.text, delay=0.5)
+                destroy(self.text, delay=0.2)
                 invoke(self.action_sequence, scramble_seq[1:], solve_seq, delay=2+0.1)
             else:
-                invoke(self.action_sequence, scramble_seq[1:], solve_seq, delay=0.1+0.1)
+                invoke(self.action_sequence, scramble_seq[1:], solve_seq, delay=0.2+0.1)
         else:
             if self.text.is_empty():
                 self.text = Text('Solve', scale=2, origin=self.text_position)

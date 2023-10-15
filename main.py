@@ -1,5 +1,3 @@
-from ursina import *
-from rubik import Rubik
 import numpy as np
 import argparse
 import time
@@ -14,10 +12,10 @@ if __name__ == '__main__':
     parser.add_argument('--manual', default=False, action=argparse.BooleanOptionalAction)
     args = parser.parse_args()
 
-    # initializing state
-    state = init_state()
-
     if not args.manual:
+
+        # initializing state
+        state = init_state()
 
         # scramble
         scramble_sequence = np.random.randint(1, 12+1, 10)
@@ -25,19 +23,29 @@ if __name__ == '__main__':
             state = next_state(state, action=a)
 
         # solve rubik
+        print('------------------ START ------------------')
         print('SOLVING...')
         start_time = time.time()
         solve_sequence = solve(state)
         end_time = time.time()
         elapsed_time = end_time - start_time
-        print(f'SOLVE FINISHED In {elapsed_time}S.')
+        print(f'SOLVE FINISHED In {elapsed_time:.5f}s.')
         time.sleep(3)
+
+    if not args.manual:
+        print('--------- PRESS ENTER TO VISUALIZE --------')
+        input()
+    
+    # imports
+    from ursina import *
+    from rubik import Rubik
 
     # start game
     app = Ursina(size=(800, 600))
     rubik = Rubik()
 
     if args.manual:
+        rubik.text = Text('Manual', scale=2, origin=rubik.text_position)
         input = lambda key: rubik.action(key, animation_time=0.5)
     else:
         action_dict = {1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6',
@@ -46,6 +54,6 @@ if __name__ == '__main__':
         # perform scramble + solution
         scramble_sequence = [action_dict[i] for i in scramble_sequence]
         solve_sequence = [action_dict[i] for i in solve_sequence]
-        invoke(rubik.action_sequence, scramble_sequence, solve_sequence, delay=5.0)
+        invoke(rubik.action_sequence, scramble_sequence, solve_sequence, delay=2.0)
     
     app.run()
