@@ -131,15 +131,3 @@ def next_state(state, action):
         state[1, :] = out
     
     return state
-
-
-if __name__ == '__main__':
-    
-    state = init_state()
-
-    # testing
-    for i in range(12):
-        for j in range(4):
-            state = next_state(state, action=i+1)
-
-    print(state)

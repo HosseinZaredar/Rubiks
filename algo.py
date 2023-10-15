@@ -5,7 +5,6 @@ import itertools
 from state import next_state
 
 
-
 class Node:
     def __init__(self, parent, action, cost, state):
         self.parent = parent
@@ -43,7 +42,7 @@ def BFS(init_state):
 
         # checking if the stack is empty
         if len(frontier_dict) == 0:
-            return 'FAIL', None
+            return None
 
         # removing a node to explore
         hashed_state, node = frontier_dict.popitem(last=False)
@@ -58,7 +57,7 @@ def BFS(init_state):
 
         # checking if it is a goal state
         if hashed_state in hashed_goal_states: 
-            return 'SUCCESS!', node
+            return node
         
         else:
 
@@ -85,17 +84,22 @@ def BFS(init_state):
                 # add to frontier dict
                 frontier_dict[new_hashed_state] = new_node
 
-def solve(initial_state):
+def solve(initial_state, method):
 
-    status, node = BFS(initial_state)
-    action_sequence = []
+    if method == 'Random':
+        return np.random.randint(1, 12+1, 10)
+    
+    elif method == 'BFS':
+        node = BFS(initial_state)
+        action_sequence = []
 
-    current_node = node
-    while current_node is not None:
-        action_sequence.append(current_node.action)
-        current_node = current_node.parent
+        current_node = node
+        while current_node is not None:
+            action_sequence.append(current_node.action)
+            current_node = current_node.parent
 
-    action_sequence = list(reversed(action_sequence))[1:]
-    print(status)
-
-    return action_sequence
+        action_sequence = list(reversed(action_sequence))[1:]
+        return action_sequence
+    
+    else:
+        return []

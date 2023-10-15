@@ -10,6 +10,8 @@ if __name__ == '__main__':
     # parsing arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('--manual', default=False, action=argparse.BooleanOptionalAction)
+    parser.add_argument('--testcase', type=str, default=None)
+    parser.add_argument('--method', type=str, default='Random')
     args = parser.parse_args()
 
     if not args.manual:
@@ -18,7 +20,13 @@ if __name__ == '__main__':
         state = init_state()
 
         # scramble
-        scramble_sequence = np.random.randint(1, 12+1, 7)
+        if args.testcase is None:
+            scramble_sequence = np.random.randint(1, 12+1, 7)
+            print(scramble_sequence)
+        else:
+            f = open(args.testcase, 'r')
+            scramble_sequence = list(map(int, f.readline().split()))
+        
         for a in scramble_sequence:
             state = next_state(state, action=a)
 
@@ -26,7 +34,7 @@ if __name__ == '__main__':
         print('------------------ START ------------------')
         print('SOLVING...')
         start_time = time.time()
-        solve_sequence = solve(state)
+        solve_sequence = solve(state, method=args.method)
         end_time = time.time()
         elapsed_time = end_time - start_time
         print(f'SOLVE FINISHED In {elapsed_time:.5f}s.')
@@ -54,6 +62,6 @@ if __name__ == '__main__':
         # perform scramble + solution
         scramble_sequence = [action_dict[i] for i in scramble_sequence]
         solve_sequence = [action_dict[i] for i in solve_sequence]
-        invoke(rubik.action_sequence, scramble_sequence, solve_sequence, delay=2.0)
+        invoke(rubik.action_sequence, scramble_sequence, solve_sequence, delay=3.0)
     
     app.run()
