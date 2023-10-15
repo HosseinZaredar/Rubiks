@@ -51,12 +51,12 @@ def next_state(state, action):
 
     # up to left
     elif action == 4:
-        state[0:2, :] = np.rot90(state[0:2, :], 1)
+        state[0:2, :] = np.rot90(state[0:2, :], -1)
         out = np.copy(state[2, :])
-        state[2, :] = np.flip(state[8, :])
-        state[8, :] = state[6, :]
-        state[6, :] = state[4, :]
-        state[4, :] = out
+        state[2, :] = state[4, :]
+        state[4, :] = state[6, :]
+        state[6, :] = state[8, :]
+        state[8, :] = out
 
     # back to right
     elif action == 5:
@@ -105,7 +105,7 @@ def next_state(state, action):
 
     # up to right
     elif action == 10:
-        state[0:2, :] = np.rot90(state[0:2, :], -1)
+        state[0:2, :] = np.rot90(state[0:2, :], 1)
         out = np.copy(state[8, :])
         state[8, :] = state[6, :]
         state[6, :] = state[4, :]

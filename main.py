@@ -18,8 +18,7 @@ if __name__ == '__main__':
         state = init_state()
 
         # scramble
-        # scramble_sequence = [12, 11, 10, 9, 8, 7]
-        scramble_sequence = np.random.randint(1, 12+1, 8)
+        scramble_sequence = np.random.randint(1, 12+1, 7)
         for a in scramble_sequence:
             state = next_state(state, action=a)
 
@@ -42,7 +41,7 @@ if __name__ == '__main__':
     from rubik import Rubik
 
     # start game
-    app = Ursina(size=(800, 600))
+    app = Ursina(size=(1280, 720))
     rubik = Rubik()
 
     if args.manual:

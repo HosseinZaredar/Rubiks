@@ -37,6 +37,8 @@ def BFS(init_state):
     # add initial node to frontier
     frontier_dict[init_hashed_state] = initial_node
 
+    max_depth = 0
+
     while True:
 
         # checking if the stack is empty
@@ -48,6 +50,11 @@ def BFS(init_state):
 
         # adding to explored
         explored_dict[hashed_state] = node
+
+        # printing max depth
+        if node.cost > max_depth:
+            max_depth = node.cost
+            print('Max Depth:', max_depth)
 
         # checking if it is a goal state
         if hashed_state in hashed_goal_states: 
@@ -77,7 +84,6 @@ def BFS(init_state):
 
                 # add to frontier dict
                 frontier_dict[new_hashed_state] = new_node
-
 
 def solve(initial_state):
 
