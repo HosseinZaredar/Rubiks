@@ -21,8 +21,8 @@ class Rubik():
         RIGHT = {Vec3(0.5, y, z) for y in [-0.5, 0.5] for z in [-0.5, 0.5]}
         DOWN = {Vec3(x, -0.5, z) for x in [-0.5, 0.5] for z in [-0.5, 0.5]}
         UP = {Vec3(x, 0.5, z) for x in [-0.5, 0.5] for z in [-0.5, 0.5]}
-        BACK = {Vec3(x, y, -0.5) for x in [-0.5, 0.5] for y in [-0.5, 0.5]}
-        FRONT = {Vec3(x, y, 0.5) for x in [-0.5, 0.5] for y in [-0.5, 0.5]}
+        BACK = {Vec3(x, y, 0.5) for x in [-0.5, 0.5] for y in [-0.5, 0.5]}
+        FRONT = {Vec3(x, y, -0.5) for x in [-0.5, 0.5] for y in [-0.5, 0.5]}
         C = LEFT | RIGHT | DOWN | UP | BACK | FRONT 
 
         # defining transition dictionaries
@@ -42,7 +42,7 @@ class Rubik():
         self.reverse_keys = dict(zip('qwerty', 'LEFT RIGHT DOWN UP BACK FRONT'.split()))
 
     def toggle_trigger(self):
-        self.action_trigger = self.action_trigger
+        self.action_trigger = not self.action_trigger
 
     def reparent_to_scene(self):
         for cube in self.CUBES:
