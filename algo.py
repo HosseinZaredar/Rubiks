@@ -156,15 +156,21 @@ def dls(init_state, hashed_goal_states, limit):
             # create new state
             new_state = next_state(node.state, action=i)
             new_hashed_state = hash_fn(new_state)
-
-            # checking if child's state is already explored or in frontier
-            if new_hashed_state in explored_dict or new_hashed_state in frontier_dict:
-                continue
-
-            # add new node to frontier dict
             new_node = Node(node, i, node.cost + 1, new_state)
-            frontier_dict[new_hashed_state] = new_node
 
+            # checking if child's state is already explored
+            if new_hashed_state in explored_dict:
+                existing_node = explored_dict[new_hashed_state]
+                if existing_node.cost <= new_node.cost:
+                    continue
+
+            # checking if child's state is already expanded
+            if new_hashed_state in frontier_dict:
+                existing_node = frontier_dict[new_hashed_state]
+                if existing_node.cost <= new_node.cost:
+                    continue
+
+            frontier_dict[new_hashed_state] = new_node
             expanded_num += 1  # one node expanded
 
 
@@ -362,7 +368,7 @@ def bibfs(init_state, hashed_goal_states):
             return None, None, expanded_num, explored_num
         
         # exploring one depth backward
-        expanded_num_added, explored_num_added = one_step_bfs(g_frontier_dict, g_explored_set, depth)
+        expanded_num_added, explored_num_added = one_step_bfs(s_frontier_dict, s_explored_set, depth)
         expanded_num += expanded_num_added
         explored_num += explored_num_added
 
@@ -372,7 +378,7 @@ def bibfs(init_state, hashed_goal_states):
             return s_final_node, g_final_node, expanded_num, explored_num
 
         # exploring one depth forward
-        expanded_num_added, explored_num_added = one_step_bfs(s_frontier_dict, s_explored_set, depth)
+        expanded_num_added, explored_num_added = one_step_bfs(g_frontier_dict, g_explored_set, depth)
         expanded_num += expanded_num_added
         explored_num += explored_num_added
 
