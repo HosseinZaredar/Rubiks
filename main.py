@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
         # scramble
         if args.testcase is None:
-            scramble_sequence = np.random.randint(1, 12+1, 7)
+            scramble_sequence = np.random.randint(1, 12+1, 20)
             print(scramble_sequence)
         else:
             f = open(args.testcase, 'r')

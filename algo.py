@@ -67,7 +67,7 @@ def bfs(init_state, hashed_goal_states):
 
     while True:
 
-        # checking if the stack is empty
+        # checking if the queue is empty
         if len(frontier_dict) == 0:
             return None, expanded_num, explored_num
 
@@ -87,6 +87,69 @@ def bfs(init_state, hashed_goal_states):
         # checking if it is a goal state
         if hashed_state in hashed_goal_states: 
             return node, expanded_num, explored_num
+        
+        # checking every possible move
+        for i in range(1, 12+1):
+            
+            # create new state
+            new_state = next_state(node.state, action=i)
+            new_hashed_state = hash_fn(new_state)
+
+            # checking if child's state is already explored or in frontier
+            if new_hashed_state in explored_dict or new_hashed_state in frontier_dict:
+                continue
+
+            # add new node to frontier dict
+            new_node = Node(node, i, node.cost + 1, new_state)
+            frontier_dict[new_hashed_state] = new_node
+
+            expanded_num += 1  # one node expanded
+
+
+def dls(init_state, hashed_goal_states, limit):
+
+    # create dictionaries
+    explored_dict = {}
+    frontier_dict = OrderedDict()
+
+    explored_num = 0  # total number of nodes explored
+    expanded_num = 0  # total number of nodes expanded
+
+    # creating the initial node
+    initial_node = Node(None, None, 0, init_state)
+    init_hashed_state = hash_fn(initial_node.state)
+
+    # add initial node to frontier
+    frontier_dict[init_hashed_state] = initial_node
+
+    max_depth = 0
+
+    while True:
+
+        # checking if the stack is empty
+        if len(frontier_dict) == 0:
+            return None, expanded_num, explored_num
+
+        # removing a node to explore
+        hashed_state, node = frontier_dict.popitem(last=True)
+
+        # adding to explored
+        explored_dict[hashed_state] = node
+
+        explored_num += 1  # one node explored
+
+        # printing max depth
+        if node.cost > max_depth:
+            max_depth = node.cost
+            print('Max Depth:', max_depth)
+
+        # checking if it is a goal state
+        if hashed_state in hashed_goal_states: 
+            return node, expanded_num, explored_num
+
+        # checking if it the children would exceed the limit
+        if node.cost == limit:
+            continue
 
         # checking every possible move
         for i in range(1, 12+1):
@@ -185,6 +248,11 @@ def solve(init_state, method):
         print('#Expanded', expanded_num)
         print('#Explored', explored_num)
         action_sequence = backtrack(final_node)
+        print('#Actions', len(action_sequence))
+        if len(action_sequence) == 0:
+            print('Failed!')
+        else:
+            print('Success!')
         return action_sequence
 
     elif method == 'A*':
@@ -193,6 +261,24 @@ def solve(init_state, method):
         print('#Expanded', expanded_num)
         print('#Explored', explored_num)
         action_sequence = backtrack(final_node)
+        print('#Actions', len(action_sequence))
+        if len(action_sequence) == 0:
+            print('Failed!')
+        else:
+            print('Success!')
+        return action_sequence
+
+    elif method == 'DLS':
+        hashed_goal_states = get_hashed_goal_state()
+        final_node, expanded_num, explored_num = dls(init_state, hashed_goal_states, limit=14)        
+        print('#Expanded', expanded_num)
+        print('#Explored', explored_num)
+        action_sequence = backtrack(final_node)
+        print('#Actions', len(action_sequence))
+        if len(action_sequence) == 0:
+            print('Failed!')
+        else:
+            print('Success!')
         return action_sequence
     
     else:
