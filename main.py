@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
         # scramble
         if args.testcase is None:
-            scramble_sequence = np.random.randint(1, 12+1, 20)
+            scramble_sequence = np.random.randint(1, 12+1, 30)
             print(scramble_sequence)
         else:
             f = open(args.testcase, 'r')
@@ -35,6 +35,7 @@ if __name__ == '__main__':
         print('SOLVING...')
         start_time = time.time()
         solve_sequence = solve(state, method=args.method)
+        print(solve_sequence)
         end_time = time.time()
         elapsed_time = end_time - start_time
         print(f'SOLVE FINISHED In {elapsed_time:.5f}s.')
