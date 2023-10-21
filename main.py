@@ -23,12 +23,12 @@ if __name__ == '__main__':
 
         # scramble
         if args.testcase is None:
-            scramble_sequence = np.random.randint(1, 12+1, 19)
-            print(scramble_sequence)
+            scramble_sequence = np.random.randint(1, 12+1, np.random.randint(10, 30))
         else:
             f = open(args.testcase, 'r')
             scramble_sequence = list(map(int, f.readline().split()))
         
+        # calculate the state and location
         for a in scramble_sequence:
             state = next_state(state, action=a)
             location = next_location(location, action=a)
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         elapsed_time = end_time - start_time
         print(f'SOLVE FINISHED In {elapsed_time:.5f}s.')
 
-
+        
     if not args.manual:
         print('--------- PRESS ENTER TO VISUALIZE --------')
         input()
