@@ -2,7 +2,7 @@ from collections import OrderedDict
 import numpy as np
 import itertools
 import heapq
-from state import next_state
+from state import next_state, init_state
 
 
 class Node:
@@ -25,14 +25,9 @@ def hash_fn(state, cost=None):
     
 
 def get_hashed_goal_state():
-    colors = [1, 2, 3, 4, 5, 6]
-    permutations = list(itertools.permutations(colors, 6))
     hashed_goal_states = {}
-    for p in permutations:
-        state = np.zeros((12, 2), dtype=np.uint8)
-        for j in range(6):
-            state[2*j:2*(j+1)] = p[j]
-        hashed_goal_states[hash_fn(state)] = state
+    state = init_state()
+    hashed_goal_states[hash_fn(state)] = state
     return hashed_goal_states
 
 
@@ -174,9 +169,24 @@ def dls(init_state, hashed_goal_states, limit):
             expanded_num += 1  # one node expanded
 
 
+def ids(init_state, hashed_goal_states, max_limit):
+    for depth in range(1, max_limit+1):
+        final_node, expanded_num, explored_num = dls(init_state, hashed_goal_states, limit=depth)
+        if final_node is not None:
+            return final_node, expanded_num, explored_num
+    return None, expanded_num, explored_num
+
+
 def heuristic(node):  # heuristic function
     # 1: h(node) = 0, =BFS
-    return 0
+    # return 0
+
+    h = 0
+    d = [0, 1, 2, 4]
+    for i in range(6):
+        u = np.unique(node.state[i*2:i*2+2, :]).shape[0]
+        h += d[u-1]
+    return h
 
 
 def a_star(init_state, hashed_goal_states):
@@ -227,6 +237,9 @@ def a_star(init_state, hashed_goal_states):
             # create new state
             new_state = next_state(node.state, action=i)
             new_hashed_state_cost = hash_fn(new_state, node.cost+1)
+
+            if node.cost+1 > 14:
+                continue
 
             # checking if the child node is not already in all_expanded_set
             if new_hashed_state_cost in all_expanded_set:
@@ -423,7 +436,20 @@ def solve(init_state, method):
 
     elif method == 'DLS':
         hashed_goal_states = get_hashed_goal_state()
-        final_node, expanded_num, explored_num = dls(init_state, hashed_goal_states, limit=8)        
+        final_node, expanded_num, explored_num = dls(init_state, hashed_goal_states, limit=7)        
+        print('#Expanded', expanded_num)
+        print('#Explored', explored_num)
+        action_sequence = backtrack(final_node)
+        print('#Actions', len(action_sequence))
+        if len(action_sequence) == 0:
+            print('Failed!')
+        else:
+            print('Success!')
+        return action_sequence
+    
+    elif method == 'IDS':
+        hashed_goal_states = get_hashed_goal_state()
+        final_node, expanded_num, explored_num = ids(init_state, hashed_goal_states, max_limit=7)        
         print('#Expanded', expanded_num)
         print('#Explored', explored_num)
         action_sequence = backtrack(final_node)
