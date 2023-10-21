@@ -14,7 +14,7 @@ np.fill_diagonal(np.fliplr(matrix[:4, :4]), 2)
 np.fill_diagonal(np.fliplr(matrix[4:, 4:]), 2)
 
 
-def init_location():
+def solved_location():
     return np.array([
         [[1, 2],
         [3, 4]],
@@ -78,26 +78,8 @@ def next_location(location, action):
     return location
 
 
-def heuristic(location):
-    matrix = np.zeros((8, 8), dtype=np.uint8)
-    matrix[:4, :4] = 1
-    matrix[:4, 4:] = 2
-    matrix[4:, 4:] = 1
-    matrix[4:, :4] = 2
-    np.fill_diagonal(matrix, 0)
-    np.fill_diagonal(np.fliplr(matrix), 3)
-    np.fill_diagonal(matrix[:4, 4:], 1)
-    np.fill_diagonal(matrix[4:, :4], 1)
-    np.fill_diagonal(np.fliplr(matrix[:4, :4]), 2)
-    np.fill_diagonal(np.fliplr(matrix[4:, 4:]), 2)
-    select_idx = location.flatten() - 1
-    output_array = np.choose(select_idx, matrix)
-    h = np.sum(output_array)
-    return h
-
-
 if __name__ == '__main__':
-    location = init_location()
+    location = solved_location()
     for a in [1, 3]:
         location = next_location(location, action=a)
     print(location)

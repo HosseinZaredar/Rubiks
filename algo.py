@@ -1,8 +1,7 @@
 from collections import OrderedDict
 import numpy as np
-import itertools
 import heapq
-from state import next_state, init_state
+from state import next_state, solved_state
 from location import matrix, next_location
 
 
@@ -29,7 +28,7 @@ def hash_fn(state, cost=None):
 
 def get_hashed_goal_state():
     hashed_goal_states = {}
-    state = init_state()
+    state = solved_state()
     hashed_goal_states[hash_fn(state)] = state
     return hashed_goal_states
 
@@ -180,24 +179,14 @@ def ids(init_state, hashed_goal_states, max_limit):
     return None, expanded_num, explored_num
 
 
-def heuristic(node, h_type=3):  # heuristic function
+def heuristic(location):  # heuristic function
     
-    if h_type == 1:  # h(node) = 0, =BFS
-        return 0
+    # return 0  # h(node) = 0, =BFS
 
-    elif h_type == 2: # naive
-        h = 0
-        d = [0, 1, 2, 4]
-        for i in range(6):
-            u = np.unique(node.state[i*2:i*2+2, :]).shape[0]
-            h += d[u-1]
-        return h/4
-
-    elif h_type == 3: # 3D Manhattan
-        select_idx = node.location.flatten() - 1
-        output_array = np.choose(select_idx, matrix)
-        h = np.sum(output_array) / 4
-        return h
+    select_idx = location.flatten() - 1
+    output_array = np.choose(select_idx, matrix)
+    h = np.sum(output_array) / 4
+    return h
 
 
 def a_star(init_state, init_location, hashed_goal_states):
@@ -215,7 +204,7 @@ def a_star(init_state, init_location, hashed_goal_states):
 
     # add initial node to frontier
     frontier_pq = []
-    heapq.heappush(frontier_pq, (heuristic(initial_node) + initial_node.cost, id(initial_node), initial_node))
+    heapq.heappush(frontier_pq, (heuristic(initial_node.location) + initial_node.cost, id(initial_node), initial_node))
 
     max_depth = 0
 
@@ -262,7 +251,7 @@ def a_star(init_state, init_location, hashed_goal_states):
 
             # adding the new_node to priority_queue i.e. actual frontier list
             new_node = Node(node, i, node.cost + 1, new_state, new_location)
-            heapq.heappush(frontier_pq, (heuristic(new_node) + new_node.cost, id(new_node), new_node))
+            heapq.heappush(frontier_pq, (heuristic(new_node.location) + new_node.cost, id(new_node), new_node))
 
             expanded_num += 1  # one node expanded
 
@@ -462,7 +451,7 @@ def solve(init_state, init_location, method):
     
     elif method == 'IDS':
         hashed_goal_states = get_hashed_goal_state()
-        final_node, expanded_num, explored_num = ids(init_state, hashed_goal_states, max_limit=7)        
+        final_node, expanded_num, explored_num = ids(init_state, hashed_goal_states, max_limit=9)        
         print('#Expanded', expanded_num)
         print('#Explored', explored_num)
         action_sequence = backtrack(final_node)

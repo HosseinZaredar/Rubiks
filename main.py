@@ -1,8 +1,8 @@
 import numpy as np
 import argparse
 import time
-from state import init_state, next_state
-from location import init_location, next_location
+from state import solved_state, next_state
+from location import solved_location, next_location
 from algo import solve
 
 
@@ -18,8 +18,8 @@ if __name__ == '__main__':
     if not args.manual:
 
         # initializing state
-        state = init_state()
-        location = init_location()
+        state = solved_state()
+        location = solved_location()
 
         # scramble
         if args.testcase is None:
@@ -38,7 +38,7 @@ if __name__ == '__main__':
         print('SOLVING...')
         start_time = time.time()
         solve_sequence = solve(state, location, method=args.method)
-        print(solve_sequence)
+        print('actions:', solve_sequence)
         end_time = time.time()
         elapsed_time = end_time - start_time
         print(f'SOLVE FINISHED In {elapsed_time:.5f}s.')
