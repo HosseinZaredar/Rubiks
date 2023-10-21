@@ -2,6 +2,7 @@ import numpy as np
 import argparse
 import time
 from state import init_state, next_state
+from location import init_location, next_location
 from algo import solve
 
 
@@ -18,10 +19,11 @@ if __name__ == '__main__':
 
         # initializing state
         state = init_state()
+        location = init_location()
 
         # scramble
         if args.testcase is None:
-            scramble_sequence = np.random.randint(1, 12+1, 39)
+            scramble_sequence = np.random.randint(1, 12+1, 19)
             print(scramble_sequence)
         else:
             f = open(args.testcase, 'r')
@@ -29,12 +31,13 @@ if __name__ == '__main__':
         
         for a in scramble_sequence:
             state = next_state(state, action=a)
+            location = next_location(location, action=a)
 
         # solve rubik
         print('------------------ START ------------------')
         print('SOLVING...')
         start_time = time.time()
-        solve_sequence = solve(state, method=args.method)
+        solve_sequence = solve(state, location, method=args.method)
         print(solve_sequence)
         end_time = time.time()
         elapsed_time = end_time - start_time

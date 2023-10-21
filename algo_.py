@@ -3,17 +3,14 @@ import numpy as np
 import itertools
 import heapq
 from state import next_state, init_state
-from location import matrix, next_location
 
 
 class Node:
-    def __init__(self, parent, action, cost, state, location=None):
+    def __init__(self, parent, action, cost, state):
         self.parent = parent
         self.action = action
         self.cost = cost
         self.state = state
-        if location is not None:
-            self.location = location
 
 
 def hash_fn(state, cost=None):
@@ -180,12 +177,12 @@ def ids(init_state, hashed_goal_states, max_limit):
     return None, expanded_num, explored_num
 
 
-def heuristic(node, h_type=3):  # heuristic function
+def heuristic(node, opt=1):  # heuristic function
     
-    if h_type == 1:  # h(node) = 0, =BFS
+    if opt == 1:  # h(node) = 0, =BFS
         return 0
 
-    elif h_type == 2: # naive
+    elif opt == 2: # naive
         h = 0
         d = [0, 1, 2, 4]
         for i in range(6):
@@ -193,14 +190,11 @@ def heuristic(node, h_type=3):  # heuristic function
             h += d[u-1]
         return h/4
 
-    elif h_type == 3: # 3D Manhattan
-        select_idx = node.location.flatten() - 1
-        output_array = np.choose(select_idx, matrix)
-        h = np.sum(output_array) / 4
-        return h
+    elif opt == 3: # 3D Manhattan
+        ...
 
 
-def a_star(init_state, init_location, hashed_goal_states):
+def a_star(init_state, hashed_goal_states):
 
     # all expanded, is only used to prevent duplicate addition of nodes in priority queue
     all_expanded_set = set()
@@ -209,7 +203,7 @@ def a_star(init_state, init_location, hashed_goal_states):
     expanded_num = 0  # total number of nodes expanded
 
     # creating the initial node
-    initial_node = Node(None, None, 0, init_state, init_location)
+    initial_node = Node(None, None, 0, init_state)
     init_hashed_state_cost = hash_fn(initial_node.state, initial_node.cost)
     all_expanded_set.add(init_hashed_state_cost)
 
@@ -247,7 +241,6 @@ def a_star(init_state, init_location, hashed_goal_states):
             
             # create new state
             new_state = next_state(node.state, action=i)
-            new_location = next_location(node.location, action=i)
             new_hashed_state_cost = hash_fn(new_state, node.cost+1)
 
             if node.cost+1 > 14:
@@ -261,7 +254,7 @@ def a_star(init_state, init_location, hashed_goal_states):
             all_expanded_set.add(new_hashed_state_cost)
 
             # adding the new_node to priority_queue i.e. actual frontier list
-            new_node = Node(node, i, node.cost + 1, new_state, new_location)
+            new_node = Node(node, i, node.cost + 1, new_state)
             heapq.heappush(frontier_pq, (heuristic(new_node) + new_node.cost, id(new_node), new_node))
 
             expanded_num += 1  # one node expanded
@@ -415,7 +408,7 @@ def bibfs(init_state, hashed_goal_states):
         depth += 1
 
 
-def solve(init_state, init_location, method):
+def solve(init_state, method):
 
     if method == 'Random':
         return np.random.randint(1, 12+1, 10)
@@ -435,8 +428,7 @@ def solve(init_state, init_location, method):
 
     elif method == 'A*':
         hashed_goal_states = get_hashed_goal_state()
-        final_node, expanded_num, explored_num = a_star(
-            init_state, init_location, hashed_goal_states)        
+        final_node, expanded_num, explored_num = a_star(init_state, hashed_goal_states)        
         print('#Expanded', expanded_num)
         print('#Explored', explored_num)
         action_sequence = backtrack(final_node)
