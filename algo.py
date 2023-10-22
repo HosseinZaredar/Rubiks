@@ -418,6 +418,23 @@ def bibfs(init_state, hashed_goal_states):
 
 
 def solve(init_state, init_location, method):
+    """
+    Solves the given Rubik's cube using the selected search algorithm.
+ 
+    Args:
+        init_state (numpy.array): Initial state of the Rubik's cube.
+        init_location (numpy.array): Initial location of the little cubes.
+        method (str): Name of the search algorithm.
+ 
+    Returns:
+        list: The squence of actions needed to solve the Rubik's cube.
+    """
+
+    # instructions:
+    # 1. use 'solved_state()' to obtain the goal state.
+    # 2. use 'next_state()' to obtain the next state when taking an action .
+    # 3. use 'next_location()' to obtain the next location of the little cubes when taking an action.
+    # 4. you can use 'Set', 'Dictionary', 'OrderedDict', and 'heapq' as efficient data structures.
 
     if method == 'Random':
         return np.random.randint(1, 12+1, 10)
