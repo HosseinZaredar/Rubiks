@@ -2,7 +2,20 @@ from collections import OrderedDict
 import numpy as np
 import heapq
 from state import next_state, solved_state
-from location import matrix, next_location
+from location import next_location
+
+
+matrix = np.zeros((8, 8), dtype=np.uint8)
+matrix[:4, :4] = 1
+matrix[:4, 4:] = 2
+matrix[4:, 4:] = 1
+matrix[4:, :4] = 2
+np.fill_diagonal(matrix, 0)
+np.fill_diagonal(np.fliplr(matrix), 3)
+np.fill_diagonal(matrix[:4, 4:], 1)
+np.fill_diagonal(matrix[4:, :4], 1)
+np.fill_diagonal(np.fliplr(matrix[:4, :4]), 2)
+np.fill_diagonal(np.fliplr(matrix[4:, 4:]), 2)
 
 
 class Node:

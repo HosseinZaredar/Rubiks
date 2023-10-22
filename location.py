@@ -1,19 +1,6 @@
 import numpy as np
 
 
-matrix = np.zeros((8, 8), dtype=np.uint8)
-matrix[:4, :4] = 1
-matrix[:4, 4:] = 2
-matrix[4:, 4:] = 1
-matrix[4:, :4] = 2
-np.fill_diagonal(matrix, 0)
-np.fill_diagonal(np.fliplr(matrix), 3)
-np.fill_diagonal(matrix[:4, 4:], 1)
-np.fill_diagonal(matrix[4:, :4], 1)
-np.fill_diagonal(np.fliplr(matrix[:4, :4]), 2)
-np.fill_diagonal(np.fliplr(matrix[4:, 4:]), 2)
-
-
 def solved_location():
     return np.array([
         [[1, 2],
@@ -79,7 +66,10 @@ def next_location(location, action):
 
 
 if __name__ == '__main__':
-    location = solved_location()
-    for a in [1, 3]:
-        location = next_location(location, action=a)
-    print(location)
+    initial_location = solved_location()
+    print('intial location:')
+    print(initial_location)
+    print()
+    child_location = next_location(initial_location, action=4)
+    print('next location:')
+    print(child_location)
