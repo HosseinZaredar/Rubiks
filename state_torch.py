@@ -15,7 +15,7 @@ def solved_state():
         [5, 5],
         [6, 6],
         [6, 6],
-    ])[None, ...]
+    ], dtype=torch.float)[None, ...]
 
 
 def next_state(state, action):
@@ -26,11 +26,11 @@ def next_state(state, action):
     # left to up
     if action == 1:
         state[:, 2:4, :] = torch.rot90(state[:, 2:4, :], 1, dims=(1, 2))
-        start = state[0:2, 0].clone()
+        start = torch.clone(state[:, 0:2, 0])
         state[:, 0:2, 0] = state[:, 4:6, 0]
         state[:, 4:6, 0] = state[:, 10:12, 0]
-        state[:, 10:12, 0] = torch.flip(state[:, 8:10, 1])
-        state[:, 8:10, 1] = torch.flip(start)
+        state[:, 10:12, 0] = torch.flip(state[:, 8:10, 1], dims=(-1,))
+        state[:, 8:10, 1] = torch.flip(start, dims=(-1,))
 
     # right to up
     elif action == 2:
@@ -38,8 +38,8 @@ def next_state(state, action):
         start = torch.clone(state[:, 0:2, 1])
         state[:, 0:2, 1] = state[:, 4:6, 1]
         state[:, 4:6, 1] = state[:, 10:12, 1]
-        state[:, 10:12, 1] = torch.flip(state[:, 8:10, 0])
-        state[:, 8:10, 0] = torch.flip(start)
+        state[:, 10:12, 1] = torch.flip(state[:, 8:10, 0], dims=(-1,))
+        state[:, 8:10, 0] = torch.flip(start, dims=(-1,))
 
     # down to left
     elif action == 3:
@@ -64,18 +64,18 @@ def next_state(state, action):
         state[:, 8:10, :] = torch.rot90(state[:, 8:10, :], 1, dims=(1, 2))
         start = torch.clone(state[:, 6:8, 1])
         state[:, 6:8, 1] = state[:, 0, :]
-        state[:, 0, :] = torch.flip(state[:, 2:4, 0])
+        state[:, 0, :] = torch.flip(state[:, 2:4, 0], dims=(-1,))
         state[:, 2:4, 0] = state[:, 11, :]
-        state[:, 11, :] = torch.flip(start)
+        state[:, 11, :] = torch.flip(start, dims=(-1,))
 
     # front to right
     elif action == 6:
         state[:, 4:6, :] = torch.rot90(state[:, 4:6, :], -1, dims=(1, 2))
         start = torch.clone(state[:, 6:8, 0])
         state[:, 6:8, 0] = state[:, 1, :]
-        state[:, 1, :] = torch.flip(state[:, 2:4, 1])
+        state[:, 1, :] = torch.flip(state[:, 2:4, 1], dims=(-1,))
         state[:, 2:4, 1] = state[:, 10, :]
-        state[:, 10, :] = torch.flip(start)
+        state[:, 10, :] = torch.flip(start, dims=(-1,))
 
     # left to down
     if action == 7:
@@ -83,8 +83,8 @@ def next_state(state, action):
         start = torch.clone(state[:, 10:12, 0])
         state[:, 10:12, 0] = state[:, 4:6, 0]
         state[:, 4:6, 0] = state[:, 0:2, 0]
-        state[:, 0:2, 0] = torch.flip(state[:, 8:10, 1])
-        state[:, 8:10, 1] = torch.flip(start)
+        state[:, 0:2, 0] = torch.flip(state[:, 8:10, 1], dims=(-1,))
+        state[:, 8:10, 1] = torch.flip(start, dims=(-1,))
 
     # right to down
     if action == 8:
@@ -92,8 +92,8 @@ def next_state(state, action):
         start = torch.clone(state[:, 10:12, 1])
         state[:, 10:12, 1] = state[:, 4:6, 1]
         state[:, 4:6, 1] = state[:, 0:2, 1]
-        state[:, 0:2, 1] = torch.flip(state[:, 8:10, 0])
-        state[:, 8:10, 0] = torch.flip(start)
+        state[:, 0:2, 1] = torch.flip(state[:, 8:10, 0], dims=(-1,))
+        state[:, 8:10, 0] = torch.flip(start, dims=(-1,))
 
     # down to right
     elif action == 9:
@@ -117,28 +117,28 @@ def next_state(state, action):
     elif action == 11:
         state[:, 8:10, :] = torch.rot90(state[:, 8:10, :], -1, dims=(1, 2))
         start = torch.clone(state[:, 6:8, 1])
-        state[:, 6:8, 1] = torch.flip(state[:, 11, :])
+        state[:, 6:8, 1] = torch.flip(state[:, 11, :], dims=(-1,))
         state[:, 11, :] = state[:, 2:4, 0]
-        state[:, 2:4, 0] = torch.flip(state[:, 0, :])
+        state[:, 2:4, 0] = torch.flip(state[:, 0, :], dims=(-1,))
         state[:, 0, :] = start
 
     # front to left
     elif action == 12:
         state[:, 4:6, :] = torch.rot90(state[:, 4:6, :], 1, dims=(1, 2))
         start = torch.clone(state[:, 6:8, 0])
-        state[:, 6:8, 0] = torch.flip(state[:, 10, :])
+        state[:, 6:8, 0] = torch.flip(state[:, 10, :], dims=(-1,))
         state[:, 10, :] = state[:, 2:4, 1]
-        state[:, 2:4, 1] = torch.flip(state[:, 1, :])
+        state[:, 2:4, 1] = torch.flip(state[:, 1, :], dims=(-1,))
         state[:, 1, :] = start
     
     return state
 
 
 if __name__ == '__main__':
-    initial_state = solved_state()
+    initial_state = solved_state().repeat(2, 1, 1)
     print('intial state:')
     print(initial_state)
     print()
-    child_state = next_state(initial_state, action=4)
+    child_state = next_state(initial_state, action=2)
     print('next state:')
     print(child_state)

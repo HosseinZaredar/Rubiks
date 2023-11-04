@@ -138,6 +138,6 @@ if __name__ == '__main__':
     print('intial state:')
     print(initial_state)
     print()
-    child_state = next_state(initial_state, action=4)
+    child_state = next_state(initial_state, action=2)
     print('next state:')
     print(child_state)

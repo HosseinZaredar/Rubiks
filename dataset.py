@@ -13,8 +13,7 @@ class RandomDataset(Dataset):
         k = random.randint(1, self.k)
         for _ in range(k):
             state = next_state(state, random.randint(1, 12))
-        
-        return state, k
+        return state.squeeze()
     
     def __len__(self):
-        return 1000
+        return 1024 * 100
