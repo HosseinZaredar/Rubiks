@@ -49,23 +49,23 @@ if __name__ == '__main__':
         input()
     
     # imports
-    from ursina import *
-    from rubik import Rubik
+#    from ursina import *
+#    from rubik import Rubik
 
     # start game
-    app = Ursina(size=(1280, 720))
-    rubik = Rubik()
-
-    if args.manual:
-        rubik.text = Text('Manual', scale=2, origin=rubik.text_position)
-        input = lambda key: rubik.action(key, animation_time=0.5)
-    else:
-        action_dict = {1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6',
-                    7: 'q', 8: 'w', 9: 'e', 10: 'r', 11: 't', 12: 'y'}
+#    app = Ursina(size=(1280, 720))
+#    rubik = Rubik()
+#
+#    if args.manual:
+#        rubik.text = Text('Manual', scale=2, origin=rubik.text_position)
+#        input = lambda key: rubik.action(key, animation_time=0.5)
+#    else:
+#        action_dict = {1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6',
+#                    7: 'q', 8: 'w', 9: 'e', 10: 'r', 11: 't', 12: 'y'}
 
         # perform scramble + solution
-        scramble_sequence = [action_dict[i] for i in scramble_sequence]
-        solve_sequence = [action_dict[i] for i in solve_sequence]
-        invoke(rubik.action_sequence, scramble_sequence, solve_sequence, delay=3.0)
+#        scramble_sequence = [action_dict[i] for i in scramble_sequence]
+#        solve_sequence = [action_dict[i] for i in solve_sequence]
+#        invoke(rubik.action_sequence, scramble_sequence, solve_sequence, delay=3.0)
     
-    app.run()
+#    app.run()
