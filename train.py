@@ -1,6 +1,5 @@
 import torch
 import os
-import glob
 import re
 from torch.utils.data import DataLoader
 from collections import namedtuple
@@ -17,16 +16,20 @@ TestCase = namedtuple('TestCase', ['inp', 'out'])
 
 
 def main(resume=False):
+
+    device = torch.device('cpu')
     
     checkpoints_dir = "checkpoints"
     benchmarks_dir = 'benchmarks'
     dataset = RandomDataset(k=20)
-    dataloader = DataLoader(dataset, batch_size=1024, num_workers=4, drop_last=True)
+    dataloader = DataLoader(dataset, batch_size=4096, num_workers=4, drop_last=True)
 
     benchmark_dataset = BenchmarkDataset(path=benchmarks_dir)
     benchmark_dataloader = DataLoader(benchmark_dataset, batch_size=len(benchmark_dataset))
 
     model = LinearModel(n_rb=2)
+    model = model.to(device)
+
     if resume:
         checkpoint = find_last(path=checkpoints_dir)
         if checkpoint:
@@ -42,7 +45,7 @@ def main(resume=False):
     params = sum([np.prod(p.size()) for p in model_parameters])
     print(f'number of parameters: {params}')
 
-    solved_s = solved_state()
+    solved_s = solved_state().to(device)
 
     epochs = 1000
     for e in range(1, epochs + 1):
@@ -50,6 +53,8 @@ def main(resume=False):
         avg_loss = 0.0
 
         for states in dataloader:
+
+            states = states.to(device)
 
             # calculate the value of neighbor states
             neighbor_states = []
@@ -60,6 +65,7 @@ def main(resume=False):
             neighbor_states = neighbor_states.reshape(12, states.shape[0], 12, 2)
             neighbor_states = neighbor_states.permute(1, 0, 2, 3)
             neighbor_states = neighbor_states.reshape(-1, 12, 2)
+            neighbor_states = neighbor_states.to(device)
 
             goal_mask = 1 - (torch.eq(neighbor_states, solved_s).sum(dim=(1, 2)) == 24).to(torch.float)[..., None] 
 
@@ -80,6 +86,8 @@ def main(resume=False):
 
         model.eval()
         benchmark_states, benchmark_target = next(iter(benchmark_dataloader))
+        benchmark_states = benchmark_states.to(device)
+        benchmark_target = benchmark_target.to(device)
         with torch.no_grad():
             benchmark_pred = model(benchmark_states.flatten(start_dim=1)).squeeze()
         error = loss_fn(benchmark_pred, benchmark_target)

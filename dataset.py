@@ -24,7 +24,7 @@ class RandomDataset(Dataset):
         return state.squeeze()
     
     def __len__(self):
-        return 1024 * 100
+        return 4096 * 100
     
 
 class BenchmarkDataset(Dataset):
