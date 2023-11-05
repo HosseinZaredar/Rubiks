@@ -6,12 +6,14 @@ class RBlock(nn.Module):
     def __init__(self, in_dim=64, hidden_dim=64) -> None:
         super(RBlock, self).__init__()
         self.l1 = nn.Linear(in_dim, hidden_dim)
+        self.bn1 = nn.BatchNorm1d(hidden_dim)
         self.l2 = nn.Linear(hidden_dim, in_dim)
+        self.bn2 = nn.BatchNorm1d(in_dim)
 
     def forward(self, x):
-        out = self.l1(x)
+        out = self.bn1(self.l1(x))
         out = nn.functional.relu(out)
-        out = self.l2(out)
+        out = self.bn2(self.l2(out))
         return out + x
 
 class LinearModel(nn.Module):
@@ -19,7 +21,9 @@ class LinearModel(nn.Module):
     def __init__(self, n_rb=4) -> None:
         super(LinearModel, self).__init__()
         self.layer1 = nn.Linear(24, 256)
+        self.bn1 = nn.BatchNorm1d(256)
         self.layer2 = nn.Linear(256, 64)
+        self.bn2 = nn.BatchNorm1d(64)
         self.rbs = nn.Sequential(*[
             RBlock() for _ in range(n_rb)
         ])
@@ -27,9 +31,9 @@ class LinearModel(nn.Module):
     
     def forward(self, x):
         x = (x - 1) / 5
-        out = self.layer1(x)
+        out = self.bn1(self.layer1(x))
         out = nn.functional.relu(out)
-        out = self.layer2(out)
+        out = self.bn2(self.layer2(out))
         out = nn.functional.relu(out)
         out = self.rbs(out)
         out = self.last_layer(out)

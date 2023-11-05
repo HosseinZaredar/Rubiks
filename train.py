@@ -22,7 +22,7 @@ def main(resume=False):
     checkpoints_dir = "checkpoints"
     benchmarks_dir = 'benchmarks'
     dataset = RandomDataset(k=20)
-    dataloader = DataLoader(dataset, batch_size=4096, num_workers=4, drop_last=True)
+    dataloader = DataLoader(dataset, batch_size=1024, num_workers=4, drop_last=True)
 
     benchmark_dataset = BenchmarkDataset(path=benchmarks_dir)
     benchmark_dataloader = DataLoader(benchmark_dataset, batch_size=len(benchmark_dataset))
