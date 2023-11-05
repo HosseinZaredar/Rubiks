@@ -4,8 +4,9 @@ import random
 
 class RandomDataset(Dataset):
 
-    def __init__(self, k=20) -> None:
+    def __init__(self, k=20, random_seed=42) -> None:
         super(RandomDataset, self).__init__()
+        random.seed(random_seed)
         self.k = k
 
     def __getitem__(self, index):
