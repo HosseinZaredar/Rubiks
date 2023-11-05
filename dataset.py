@@ -1,6 +1,13 @@
-from torch.utils.data import Dataset
-from state_torch import *
+from torch.utils.data import Dataset, DataLoader
+import os
+import pickle
 import random
+from collections import namedtuple
+
+from state_torch import *
+
+
+TestCase = namedtuple('TestCase', ['inp', 'out'])
 
 class RandomDataset(Dataset):
 
@@ -18,3 +25,26 @@ class RandomDataset(Dataset):
     
     def __len__(self):
         return 1024 * 100
+    
+
+class BenchmarkDataset(Dataset):
+
+    def __init__(self, path) -> None:
+        super(BenchmarkDataset, self).__init__()
+        files = os.listdir(path)
+        self.data = [pickle.load(open(os.path.join(path, file), 'rb')) for file in files]
+
+    def __getitem__(self, index):
+        return torch.from_numpy(self.data[index][0]).to(torch.float), \
+            torch.from_numpy(self.data[index][1]).to(torch.float)
+    
+    def __len__(self):
+        return len(self.data)
+
+
+if __name__ == '__main__':
+    bd = BenchmarkDataset(path='benchmarks')
+    dl = DataLoader(bd, batch_size=len(bd))
+    for x, y in dl:
+        print(x, y)
+    

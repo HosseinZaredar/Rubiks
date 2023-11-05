@@ -1,20 +1,28 @@
 import torch
 from torch.utils.data import DataLoader
+from collections import namedtuple
 from torch.optim import Adam
 import torch.nn as nn
 import numpy as np
+import argparse
 
-from dataset import RandomDataset
+from dataset import RandomDataset, BenchmarkDataset
 from state_torch import solved_state, next_state
 from nn.network import LinearModel
 
+TestCase = namedtuple('TestCase', ['inp', 'out'])
 
-def main():
+
+def main(resume=False):
     
     dataset = RandomDataset(k=20)
     dataloader = DataLoader(dataset, batch_size=1024, num_workers=4, drop_last=True)
+
+    benchmark_dataset = BenchmarkDataset(path='benchmarks')
+    benchmark_dataloader = DataLoader(benchmark_dataset, batch_size=len(benchmark_dataset))
+
     model = LinearModel(n_rb=2)
-    optimizer = Adam(model.parameters(), lr=1e-3)
+    optimizer = Adam(model.parameters(), lr=3e-4)
     loss_fn = nn.MSELoss()
 
     model_parameters = filter(lambda p: p.requires_grad, model.parameters())
@@ -56,9 +64,23 @@ def main():
 
             avg_loss += loss.item()
 
+
+        model.eval()
+        benchmark_states, benchmark_target = next(iter(benchmark_dataloader))
+        with torch.no_grad():
+            benchmark_pred = model(benchmark_states.flatten(start_dim=1)).squeeze()
+        error = loss_fn(benchmark_pred, benchmark_target)
+        model.train()
+
         avg_loss /= len(dataloader)
-        print(f'EPOCH={e}, LOSS={avg_loss:.4f}')      
+        print(f'EPOCH={e}, TRAIN LOSS={avg_loss:.4f}, TEST ERROR={error:.4f}')      
         torch.save(model.state_dict(), f'checkpoints/{e}_{int(avg_loss*1000)}.pth')      
 
 if __name__ == '__main__':
-    main()
+
+    # parsing arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--resume', default=False, action=argparse.BooleanOptionalAction)
+    args = parser.parse_args()
+
+    main(resume=args.resume)

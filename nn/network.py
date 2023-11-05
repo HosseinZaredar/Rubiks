@@ -26,6 +26,7 @@ class LinearModel(nn.Module):
         self.last_layer = nn.Linear(64, 1)
     
     def forward(self, x):
+        x = (x - 1) / 5
         out = self.layer1(x)
         out = nn.functional.relu(out)
         out = self.layer2(out)
