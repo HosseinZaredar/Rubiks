@@ -1,4 +1,7 @@
 import torch
+import os
+import glob
+import re
 from torch.utils.data import DataLoader
 from collections import namedtuple
 from torch.optim import Adam
@@ -15,13 +18,23 @@ TestCase = namedtuple('TestCase', ['inp', 'out'])
 
 def main(resume=False):
     
+    checkpoints_dir = "checkpoints"
+    benchmarks_dir = 'benchmarks'
     dataset = RandomDataset(k=20)
     dataloader = DataLoader(dataset, batch_size=1024, num_workers=4, drop_last=True)
 
-    benchmark_dataset = BenchmarkDataset(path='benchmarks')
+    benchmark_dataset = BenchmarkDataset(path=benchmarks_dir)
     benchmark_dataloader = DataLoader(benchmark_dataset, batch_size=len(benchmark_dataset))
 
     model = LinearModel(n_rb=2)
+    if resume:
+        checkpoint = find_last(path=checkpoints_dir)
+        if checkpoint:
+            model.load_state_dict(
+                torch.load(
+                    checkpoint
+                )
+            )
     optimizer = Adam(model.parameters(), lr=3e-4)
     loss_fn = nn.MSELoss()
 
@@ -32,7 +45,7 @@ def main(resume=False):
     solved_s = solved_state()
 
     epochs = 1000
-    for e in range(epochs):
+    for e in range(1, epochs + 1):
 
         avg_loss = 0.0
 
@@ -74,7 +87,17 @@ def main(resume=False):
 
         avg_loss /= len(dataloader)
         print(f'EPOCH={e}, TRAIN LOSS={avg_loss:.4f}, TEST ERROR={error:.4f}')      
-        torch.save(model.state_dict(), f'checkpoints/{e}_{int(avg_loss*1000)}.pth')      
+        torch.save(model.state_dict(), f'{checkpoints_dir}/{e}_{str(int(avg_loss*1000)).zfill(3)}.pth')      
+
+def find_last(path):
+    files = os.listdir(path)
+    pattern = r"\d+_\d{3}\.pth"
+    files = [f for f in files if re.search(pattern, f)]
+    files.sort(reverse=True)
+    if files:
+        return os.path.join(path, files[0])
+    return None
+
 
 if __name__ == '__main__':
 
