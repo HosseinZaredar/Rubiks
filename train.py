@@ -30,14 +30,15 @@ def main(resume=False):
 
     model = LinearModel(n_rb=2).to(device)
 
+    epoch_start = 1
+
     if resume:
         checkpoint = find_last(path=checkpoints_dir)
         if checkpoint:
-            model.load_state_dict(
-                torch.load(
-                    checkpoint
-                )
-            )
+            model.load_state_dict(torch.load(checkpoint))
+        checkpoint_name = os.path.split(checkpoint)[-1]
+        epoch_start = int(checkpoint_name.split('_')[1])
+
     optimizer = Adam(model.parameters(), lr=3e-4)
     loss_fn = nn.MSELoss()
 
@@ -48,7 +49,7 @@ def main(resume=False):
     solved_s = solved_state().to(device)
 
     epochs = 1000
-    for e in range(1, epochs + 1):
+    for e in range(epoch_start, epochs + 1):
 
         avg_loss = 0.0
 
@@ -94,8 +95,8 @@ def main(resume=False):
         model.train()
 
         avg_loss /= len(dataloader)
-        print(f'EPOCH={e:5d}, TRAIN LOSS={avg_loss:.4f}, TEST ERROR={error:.4f}')      
-        torch.save(model.state_dict(), f'{checkpoints_dir}/{e}_{str(int(avg_loss*1000)).zfill(3)}.pth')      
+        print(f'EPOCH={e:05d}, TRAIN LOSS={avg_loss:.4f}, TEST ERROR={error:.4f}')      
+        torch.save(model.state_dict(), f'{checkpoints_dir}/epoch_{e:05d}_{str(int(avg_loss*1000)).zfill(3)}.pth')      
 
 def find_last(path):
     files = os.listdir(path)
