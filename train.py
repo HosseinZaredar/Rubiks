@@ -16,7 +16,7 @@ from nn.network import LinearModel
 TestCase = namedtuple('TestCase', ['inp', 'out'])
 
 
-def main(resume=False):
+def main(resume=False, tensorboard=False):
 
     device = torch.device('cpu')
     
@@ -38,6 +38,13 @@ def main(resume=False):
             model.load_state_dict(torch.load(checkpoint))
         checkpoint_name = os.path.split(checkpoint)[-1]
         epoch_start = int(checkpoint_name.split('_')[1])
+
+
+    if tensorboard:
+        from datetime import datetime
+        from torch.utils.tensorboard import SummaryWriter
+        run_name = f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}'
+        writer = SummaryWriter(os.path.join('tensorboard', run_name))
 
     optimizer = Adam(model.parameters(), lr=3e-4)
     loss_fn = nn.MSELoss()
@@ -96,7 +103,11 @@ def main(resume=False):
 
         avg_loss /= len(dataloader)
         print(f'EPOCH={e:05d}, TRAIN LOSS={avg_loss:.4f}, TEST ERROR={error:.4f}')      
-        torch.save(model.state_dict(), f'{checkpoints_dir}/epoch_{e:05d}_{str(int(avg_loss*1000)).zfill(3)}.pth')      
+        torch.save(model.state_dict(), f'{checkpoints_dir}/epoch_{e:05d}_{str(int(avg_loss*1000)).zfill(3)}.pth')
+
+        if tensorboard:
+            writer.add_scalar('metrics/train_loss', avg_loss, e) 
+            writer.add_scalar('metrics/test_error', error, e) 
 
 def find_last(path):
     files = os.listdir(path)
@@ -113,6 +124,7 @@ if __name__ == '__main__':
     # parsing arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('--resume', default=False, action=argparse.BooleanOptionalAction)
+    parser.add_argument('--tensorboard', default=False, action=argparse.BooleanOptionalAction)
     args = parser.parse_args()
 
-    main(resume=args.resume)
+    main(resume=args.resume, tensorboard=args.tensorboard)
