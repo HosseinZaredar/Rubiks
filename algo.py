@@ -3,6 +3,8 @@ import numpy as np
 import heapq
 from state import next_state, solved_state
 from location import next_location
+import torch
+from nn.network import LinearModel
 
 
 matrix = np.zeros((8, 8), dtype=np.uint8)
@@ -269,6 +271,93 @@ def a_star(init_state, init_location, hashed_goal_states):
             expanded_num += 1  # one node expanded
 
 
+def heuristic_net(model, state):  # heuristic function
+    if state.ndim == 2:
+        ans = model(torch.from_numpy(state).flatten().unsqueeze(0).to(torch.float))
+        return ans.item()
+    ans = model(torch.from_numpy(state).flatten(start_dim=1).to(torch.float))
+    return ans.flatten().tolist()
+
+
+def a_star_net(init_state, init_location, hashed_goal_states):
+
+    # load heuristic model
+    model = LinearModel(n_rb=2, bn=False)
+    model.load_state_dict(torch.load("checkpoints/epoch_00322_224.pth"))
+
+    # all expanded, is only used to prevent duplicate addition of nodes in priority queue
+    all_expanded_set = set()
+    
+    explored_num = 0  # total number of nodes explored
+    expanded_num = 0  # total number of nodes expanded
+
+    # creating the initial node
+    initial_node = Node(None, None, 0, init_state, init_location)
+    init_hashed_state_cost = hash_fn(initial_node.state, initial_node.cost)
+    all_expanded_set.add(init_hashed_state_cost)
+
+    # add initial node to frontier
+    frontier_pq = []
+    
+    heapq.heappush(frontier_pq, (heuristic_net(model, initial_node.state) + initial_node.cost, id(initial_node), initial_node))
+
+    max_depth = 0
+
+    while True:
+
+        # checking if the priority queue is empty which means there's no solution
+        if len(frontier_pq) == 0:
+            return None, None, None
+        
+        # popping a node
+        priority, node_id, node = heapq.heappop(frontier_pq)
+
+        # creating hashed state
+        hashed_state = hash_fn(node.state)
+
+        explored_num += 1  # one node explored
+
+        # printing max depth
+        if node.cost > max_depth:
+            max_depth = node.cost
+            print('Max Depth:', max_depth)
+
+        # checking if it is a goal state
+        if hashed_state in hashed_goal_states: 
+            return node, expanded_num, explored_num
+        
+        # checking every possible move
+        new_nodes = []
+        new_states = []
+        for i in range(1, 12+1):
+            
+            # create new state
+            new_state = next_state(node.state, action=i)
+            new_location = next_location(node.location, action=i)
+            new_hashed_state_cost = hash_fn(new_state, node.cost+1)
+
+            if node.cost+1 > 14:
+                continue
+
+            # checking if the child node is not already in all_expanded_set
+            if new_hashed_state_cost in all_expanded_set:
+                continue
+
+            # adding the child node to all_expanded_set
+            all_expanded_set.add(new_hashed_state_cost)
+
+            # adding the new_node to priority_queue i.e. actual frontier list
+            new_nodes.append(Node(node, i, node.cost + 1, new_state, new_location))
+            new_states.append(new_state)
+
+            expanded_num += 1  # one node expanded
+
+        if new_states:
+            heuristics = heuristic_net(model, np.stack(new_states))
+            for i, new_node in enumerate(new_nodes):
+                heapq.heappush(frontier_pq, (heuristics[i] + new_node.cost, id(new_node), new_node))
+
+
 def bi_backtrack(s_final_node, g_final_node):
 
     # creating the path
@@ -455,6 +544,20 @@ def solve(init_state, init_location, method):
     elif method == 'A*':
         hashed_goal_states = get_hashed_goal_state()
         final_node, expanded_num, explored_num = a_star(
+            init_state, init_location, hashed_goal_states)        
+        print('#Expanded', expanded_num)
+        print('#Explored', explored_num)
+        action_sequence = backtrack(final_node)
+        print('#Actions', len(action_sequence))
+        if len(action_sequence) == 0:
+            print('Failed!')
+        else:
+            print('Success!')
+        return action_sequence
+    
+    elif method == 'A*Net':
+        hashed_goal_states = get_hashed_goal_state()
+        final_node, expanded_num, explored_num = a_star_net(
             init_state, init_location, hashed_goal_states)        
         print('#Expanded', expanded_num)
         print('#Explored', explored_num)
