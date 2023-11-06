@@ -28,7 +28,7 @@ def main(resume=False, tensorboard=False):
     benchmark_dataset = BenchmarkDataset(path=benchmarks_dir)
     benchmark_dataloader = DataLoader(benchmark_dataset, batch_size=len(benchmark_dataset))
 
-    model = LinearModel(n_rb=2).to(device)
+    model = LinearModel(n_rb=2, bn=False).to(device)
 
     epoch_start = 1
 
@@ -46,7 +46,7 @@ def main(resume=False, tensorboard=False):
         run_name = f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}'
         writer = SummaryWriter(os.path.join('tensorboard', run_name))
 
-    optimizer = Adam(model.parameters(), lr=3e-4)
+    optimizer = Adam(model.parameters(), lr=1e-4)
     loss_fn = nn.MSELoss()
 
     model_parameters = filter(lambda p: p.requires_grad, model.parameters())

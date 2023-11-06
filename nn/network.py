@@ -3,12 +3,12 @@ import torch.nn as nn
 
 class RBlock(nn.Module):
         
-    def __init__(self, in_dim=64, hidden_dim=64) -> None:
+    def __init__(self, in_dim=64, hidden_dim=64, bn=False) -> None:
         super(RBlock, self).__init__()
         self.l1 = nn.Linear(in_dim, hidden_dim)
-        self.bn1 = nn.BatchNorm1d(hidden_dim)
+        self.bn1 = nn.BatchNorm1d(hidden_dim) if bn else nn.Identity()
         self.l2 = nn.Linear(hidden_dim, in_dim)
-        self.bn2 = nn.BatchNorm1d(in_dim)
+        self.bn2 = nn.BatchNorm1d(in_dim) if bn else nn.Identity()
 
     def forward(self, x):
         out = self.bn1(self.l1(x))
@@ -18,14 +18,14 @@ class RBlock(nn.Module):
 
 class LinearModel(nn.Module):
 
-    def __init__(self, n_rb=4) -> None:
+    def __init__(self, n_rb=4, bn=False) -> None:
         super(LinearModel, self).__init__()
         self.layer1 = nn.Linear(24, 256)
-        self.bn1 = nn.BatchNorm1d(256)
+        self.bn1 = nn.BatchNorm1d(256) if bn else nn.Identity()
         self.layer2 = nn.Linear(256, 64)
-        self.bn2 = nn.BatchNorm1d(64)
+        self.bn2 = nn.BatchNorm1d(64) if bn else nn.Identity()
         self.rbs = nn.Sequential(*[
-            RBlock() for _ in range(n_rb)
+            RBlock(bn=bn) for _ in range(n_rb)
         ])
         self.last_layer = nn.Linear(64, 1)
     
