@@ -16,13 +16,6 @@ from nn.network import LinearModel
 TestCase = namedtuple('TestCase', ['inp', 'out'])
 
 
-def ema_update(model_ema, model, decay=0.99):
-    model_params = dict(model.named_parameters())
-    model_ema_params = dict(model_ema.named_parameters())
-    for k in model_params.keys():
-        model_ema_params[k].data.mul_(decay).add_(model_params[k].data, alpha=1-decay)
-
-
 def main(resume=False):
 
     device = torch.device('cpu')
@@ -36,7 +29,6 @@ def main(resume=False):
     benchmark_dataloader = DataLoader(benchmark_dataset, batch_size=len(benchmark_dataset))
 
     model = LinearModel(n_rb=2).to(device)
-    model_ema = copy.deepcopy(model).to(device).eval().requires_grad_(False)
 
     if resume:
         checkpoint = find_last(path=checkpoints_dir)
@@ -89,20 +81,20 @@ def main(resume=False):
             loss.backward()
             optimizer.step()
 
-            ema_update(model_ema, model, decay=0.99)
-
             avg_loss += loss.item()
 
 
+        model.eval()
         benchmark_states, benchmark_target = next(iter(benchmark_dataloader))
         benchmark_states = benchmark_states.to(device)
         benchmark_target = benchmark_target.to(device)
         with torch.no_grad():
-            benchmark_pred = model_ema(benchmark_states.flatten(start_dim=1)).squeeze()
+            benchmark_pred = model(benchmark_states.flatten(start_dim=1)).squeeze()
         error = loss_fn(benchmark_pred, benchmark_target)
+        model.train()
 
         avg_loss /= len(dataloader)
-        print(f'EPOCH={e}, TRAIN LOSS={avg_loss:.4f}, TEST ERROR={error:.4f}')      
+        print(f'EPOCH={e:5d}, TRAIN LOSS={avg_loss:.4f}, TEST ERROR={error:.4f}')      
         torch.save(model.state_dict(), f'{checkpoints_dir}/{e}_{str(int(avg_loss*1000)).zfill(3)}.pth')      
 
 def find_last(path):
