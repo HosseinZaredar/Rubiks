@@ -10,7 +10,7 @@ import copy
 import argparse
 
 from dataset import RandomDataset, BenchmarkDataset
-from state_torch import solved_state, next_state
+from state_torch import solved_state, next_state, all_solved_state
 from nn.network import LinearModel
 
 TestCase = namedtuple('TestCase', ['inp', 'out'])
@@ -53,7 +53,8 @@ def main(resume=False, tensorboard=False):
     params = sum([np.prod(p.size()) for p in model_parameters])
     print(f'number of parameters: {params}')
 
-    solved_s = solved_state().to(device)
+    # solved_s = solved_state().to(device)
+    solved_s = all_solved_state().to(device)
 
     epochs = 1000
     for e in range(epoch_start, epochs + 1):
@@ -75,7 +76,8 @@ def main(resume=False, tensorboard=False):
             neighbor_states = neighbor_states.reshape(-1, 12, 2)
             neighbor_states = neighbor_states.to(device)
 
-            goal_mask = 1 - (torch.eq(neighbor_states, solved_s).sum(dim=(1, 2)) == 24).to(torch.float)[..., None] 
+            # goal_mask = 1 - (torch.eq(neighbor_states, solved_s).sum(dim=(1, 2)) == 24).to(torch.float)[..., None] 
+            goal_mask = 1 - (torch.eq(neighbor_states.unsqueeze(0), solved_s).sum(dim=(2, 3)) == 24).max(axis=0).values.to(torch.float)[..., None] 
 
             with torch.no_grad():
                 neighbor_values = nn.functional.relu(model(neighbor_states.flatten(start_dim=1))) * goal_mask
@@ -83,6 +85,10 @@ def main(resume=False, tensorboard=False):
             best_neighbors, _ = torch.min(neighbor_values.view(-1, 12), dim=1)
             target_values = 1 + best_neighbors
 
+            # check if it is a goal state
+            state_mask = 1 - (torch.eq(states.unsqueeze(0), solved_s).sum(dim=(2, 3)) == 24).max(axis=0).values.to(torch.float)[..., None]
+            target_values = target_values * state_mask
+    
             state_values = model(states.flatten(start_dim=1)).squeeze()
             loss = loss_fn(state_values, target_values)
             optimizer.zero_grad()

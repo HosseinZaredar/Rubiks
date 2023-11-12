@@ -17,6 +17,59 @@ def solved_state():
         [6, 6],
     ], dtype=torch.float)[None, ...]
 
+def state_maker(up, left, front, right, back, down):
+    return torch.tensor([
+        [up, up],
+        [up, up],
+        [left, left],
+        [left, left],
+        [front, front],
+        [front, front],
+        [right, right],
+        [right, right],
+        [back, back],
+        [back, back],
+        [down, down],
+        [down, down],
+    ], dtype=torch.float)[None, ...]
+
+def all_solved_state():
+    s11 = state_maker(4, 5, 1, 3, 6, 2)
+    s12 = state_maker(5, 2, 1, 4, 6, 3)
+    s13 = state_maker(2, 3, 1, 5, 6, 4)
+    s14 = state_maker(3, 4, 1, 2, 6, 5)
+    
+    s21 = state_maker(3, 1, 2, 6, 4, 5)
+    s22 = state_maker(1, 5, 2, 3, 4, 6)
+    s23 = state_maker(5, 6, 2, 1, 4, 3)
+    s24 = state_maker(6, 3, 2, 5, 4, 1)
+    
+    s31 = state_maker(1, 2, 3, 4, 5, 6)
+    s32 = state_maker(2, 6, 3, 1, 5, 4)
+    s33 = state_maker(6, 4, 3, 2, 5, 1)
+    s34 = state_maker(4, 1, 3, 6, 5, 2)
+
+    s41 = state_maker(3, 6, 4, 1, 2, 5)
+    s42 = state_maker(6, 5, 4, 3, 2, 1)
+    s43 = state_maker(5, 1, 4, 6, 2, 3)
+    s44 = state_maker(1, 3, 4, 5, 2, 6)
+    
+    s51 = state_maker(1, 4, 5, 2, 3, 6)
+    s52 = state_maker(4, 6, 5, 1, 3, 2)
+    s53 = state_maker(6, 2, 5, 4, 3, 1)
+    s54 = state_maker(2, 1, 5, 6, 3, 4)
+    
+    s61 = state_maker(4, 3, 6, 5, 1, 2)
+    s62 = state_maker(3, 2, 6, 4, 1, 5)
+    s63 = state_maker(2, 5, 6, 3, 1, 4)
+    s64 = state_maker(5, 4, 6, 2, 1, 3)
+    return torch.stack([s11, s12, s13, s14, 
+                        s21, s22, s23, s24, 
+                        s31, s32, s33, s34, 
+                        s41, s42, s43, s44, 
+                        s51, s52, s53, s54, 
+                        s61, s62, s63, s64])
+
 
 def next_state(state, action):
 
