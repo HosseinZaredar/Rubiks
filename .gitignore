@@ -1,3 +1,5 @@
 __pycache__/
 checkpoints/
 tensorboard/
+benchmarks_multigoals
+benchmarks

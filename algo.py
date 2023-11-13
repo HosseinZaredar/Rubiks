@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import numpy as np
 import heapq
-from state import next_state, solved_state
+from state import next_state, solved_state, all_solved_state
 from location import next_location
 import torch
 from nn.network import LinearModel
@@ -43,8 +43,10 @@ def hash_fn(state, cost=None):
 
 def get_hashed_goal_state():
     hashed_goal_states = {}
-    state = solved_state()
-    hashed_goal_states[hash_fn(state)] = state
+    # state = solved_state()
+    # hashed_goal_states[hash_fn(state)] = state
+    for state in all_solved_state():
+        hashed_goal_states[hash_fn(state)] = state
     return hashed_goal_states
 
 

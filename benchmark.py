@@ -10,7 +10,7 @@ from algo import solve
 TestCase = namedtuple('TestCase', ['inp', 'out'])
 
 SEED = 42
-path = osp.join(".", "benchmarks")
+path = osp.join(".", "benchmarks_multigoals")
 
 dataset = RandomDataset(k=20, random_seed=SEED)
 
