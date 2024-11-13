@@ -1,6 +1,6 @@
 # Rubik's Cube Solver 2x2
 
-This repository contains a Rubik's Cube solver implementation for a 2x2 cube, based on the paper [**_"Solving the Rubik’s Cube with Deep Reinforcement Learning and Search"_**](https://cse.sc.edu/~foresta/assets/files/SolvingTheRubiksCubeWithDeepReinforcementLearningAndSearch_Final.pdf) by Prof. [**Forest Agostinelli**](https://cse.sc.edu/~foresta/). The project implements several search techniques, including the paper's approach, to find efficient solutions to scrambled cubes.
+This repository contains a Rubik's Cube solver implementation for a 2x2 cube, based on the paper [**_"Solving the Rubik’s Cube with Deep Reinforcement Learning and Search"_**](https://cse.sc.edu/~foresta/assets/files/SolvingTheRubiksCubeWithDeepReinforcementLearningAndSearch_Final.pdf) by **Agostinelli et al**. The project implements several search techniques, including the paper's approach, to find efficient solutions to scrambled cubes.
 
 ## Search Techniques Implemented
 
@@ -43,7 +43,7 @@ python train.py
 
 #### Additional Training Options
 
-- **Resume Training**: Use the `--resum` flag to continue training from the last checkpoint.
+- **Resume Training**: Use the `--resume` flag to continue training from the last checkpoint.
 - **TensorBoard Visualization**: Use the `--tensorboard` flag to visualize training stats.
 
 ### UI
