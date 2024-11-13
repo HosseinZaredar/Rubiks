@@ -6,7 +6,7 @@ This repository contains a Rubik's Cube solver implementation for a 2x2 cube, ba
 
 This repository offers a range of search algorithms to solve the 2x2 Rubik's Cube, each using the Manhattan distance of cube pieces as a heuristic where applicable. The following techniques are available:
 
-- **Paper Technique**: A deep reinforcement learning approach with search.
+- **DeepCubeA**: A deep reinforcement learning approach with search.
 - **BFS** (Breadth-First Search)
 - **DLS** (Depth-Limited Search)
 - **IDS** (Iterative Deepening Search)
@@ -54,4 +54,4 @@ You can see an example of the UI running in the following image:
 
 ## Technical Details
 
-For further technical details on the deep reinforcement learning approach, please refer to the original [paper](https://cse.sc.edu/~foresta/assets/files/SolvingTheRubiksCubeWithDeepReinforcementLearningAndSearch_Final.pdf).
+For further technical details on the DeepCubeA, please refer to the original [paper](https://cse.sc.edu/~foresta/assets/files/SolvingTheRubiksCubeWithDeepReinforcementLearningAndSearch_Final.pdf).
